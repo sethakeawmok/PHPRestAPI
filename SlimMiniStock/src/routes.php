@@ -57,6 +57,11 @@ use PathClass\UserClass;
     
     $app->group('/api', function () use ( $app )
     {
+        $app->get('/users', function ($request, $response)
+        {
+            $getUser = new UserClass($this->db);
+            return $getUser->getUser($request, $response);
+        });
 
         $app->get('/user/me', function ($request, $response) {
 
@@ -69,6 +74,19 @@ use PathClass\UserClass;
             return $getUserByID->getUserByID($request, $response, $args);
             
         });
+
+        $app->put('/user/me', function ($request, $response) {
+
+            $auth_header = $request->getHeader("Authorization"); 
+            $token = substr($auth_header[0],6);
+            $settings = $this->get('settings');
+            $args = JWT::decode(trim($token), $settings['jwt']['secret'], array('HS256'));
+            
+            $UpdateProfile = new UserClass($this->db);
+            return $UpdateProfile->UpdateProfile($request, $response, $args);
+            
+        });
+
        
         // Get All Products (Method GET)
         $app->get('/products', function ($request, $response)
